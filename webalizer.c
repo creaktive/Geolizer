@@ -106,8 +106,8 @@ char    *our_gzgets(gzFile, char *, int);           /* our gzgets          */
 /*********************************************/
 
 char    *version     = "2.01";                /* program version          */
-char    *editlvl     = "10";                  /* edit level               */
-char    *moddate     = "26-Aug-2002";         /* modification date        */
+char    *editlvl     = "10-glzr";             /* edit level               */
+char    *moddate     = "16-Feb-2004";         /* modification date        */
 char    *copyright   = "Copyright 1997-2001 by Bradford L. Barrett";
 
 int     verbose      = 2;                     /* 2=verbose,1=err, 0=none  */ 
@@ -148,6 +148,7 @@ int     dns_children = 0;                     /* DNS children (0=don't do)*/
 int     use_geoip    = 1;                     /* Use GeoIP library        */
 char    *geoip_dbase = NULL;                  /* Use specific GeoIP dbase */
 GeoIP	*gi          = NULL;                  /* GeoIP handle             */
+char	gi_db_info[256];                      /* GeoIP db info (HTMLized) */
 #endif	/* USE_GEOIP */
 
 int     ntop_sites   = 30;                    /* top n sites to display   */
@@ -276,9 +277,11 @@ int main(int argc, char *argv[])
 
 #ifndef WIN32
    sprintf(tmp_buf,"%s/webalizer.conf",ETCDIR);
+#endif	/* WIN32 */
    /* check for default config file */
    if (!access("webalizer.conf",F_OK))
       get_config("webalizer.conf");
+#ifndef WIN32
    else if (!access(tmp_buf,F_OK))
       get_config(tmp_buf);
 #endif	/* WIN32 */
@@ -470,18 +473,34 @@ int main(int argc, char *argv[])
    {
       if (geoip_dbase!=NULL)
       {
-         if (verbose>1) printf("Using GeoIP database %s\n", geoip_dbase);
+         if (verbose>1) printf("Using GeoIP database %s:\n", geoip_dbase);
          gi=GeoIP_open(geoip_dbase, GEOIP_FLAGS);
       }
       else
       {
-         if (verbose>1) printf("Using default GeoIP database\n");
+         if (verbose>1) printf("Using default GeoIP database:\n");
          gi=GeoIP_new(GEOIP_FLAGS);
       }
       
       /* GeoIP already prints error (in English!) */
       if (gi==NULL)
          exit(1);
+
+      /* get database information */
+      cp1=GeoIP_database_info(gi);
+      if (verbose>1) printf("%s\n", cp1);
+
+      /* HTMLize db info */
+      memset(gi_db_info, 0, sizeof(gi_db_info));
+      if ((cp2=strstr(cp1, "MaxMind"))==NULL)
+         strncpy(gi_db_info, cp1, sizeof(gi_db_info)-1);
+      else
+      {
+         strncpy(gi_db_info, cp1, cp2-cp1);
+	 strcat(gi_db_info, "<A HREF=\"http://maxmind.com/geoip/\">MaxMind</A>");
+	 strcat(gi_db_info, cp2+7);
+      }
+      free(cp1);
    }
 #endif	/* USE_GEOIP */
 
@@ -1517,6 +1536,9 @@ void get_config(char *fname)
       fprintf(stderr,"%s %s\n",msg_bad_conf,fname);
       return;
    }
+
+   if (verbose && debug_mode)
+      fprintf(stderr,"Using config file %s\n",fname);
 
    while ( (fgets(buffer,BUFSIZE,fp)) != NULL)
    {

@@ -5,7 +5,7 @@
 # Distributed under the GNU GPL. See "README" and "Copyright"
 # files supplied with this distribution for more information.
 #
-# Modified by Stanislaw Pusep (stanis@linuxmail.org) to work with MinGW
+# Modified by Stanislaw Pusep (stanis@linuxmail.org) to work with MinGW/MSYS
 # To build this, first compile all dependencies, check LDFLAGS and then:
 #
 # make distclean
@@ -14,24 +14,24 @@
 #BINDIR	= ${exec_prefix}/bin
 #MANDIR	= ${prefix}/man/man1
 CC	= gcc
-#CP	= cp -fp
-CP	= copy /Y
-#RM	= rm -f
-RM	= del
+CP	= cp -fp
+#CP	= copy /Y
+RM	= rm -f
+#RM	= del
 
-CFLAGS	= -Wall -O2 -IWin32 -I../zlib
+CFLAGS	= -Wall -Os -IWin32 -I../zlib-1.2.1
 LIBS	= -lgd -lpng -lz -lm -liberty
-LDFLAGS	= -L../gd -L../libpng -L../zlib
+LDFLAGS	= -L../gd-2.0.22/.libs -L../libpng-1.2.5 -L../zlib-1.2.1
 DEFS	= -DWIN32 -DHAVE_GETOPT_H=1 -DHAVE_MATH_H=1
 
 # where are the GD header files?
-GDLIB	=../gd
+GDLIB	=../gd-2.0.22
 
 # Uncomment this if compiling with GeoIP support:
-#CFLAGS	= -Wall -O2 -IWin32 -I../zlib -I../libGeoIP
-#LIBS	= -lgd -lpng -lz -lm -liberty -lGeoIP -lws2_32
-#LDFLAGS	= -L../gd -L../libpng -L../zlib -L../libGeoIP
-#DEFS	= -DWIN32 -DHAVE_GETOPT_H=1 -DHAVE_MATH_H=1 -DUSE_GEOIP=1
+#CFLAGS	+= -I../GeoIP-1.3.1/libGeoIP
+#LIBS	+= -lGeoIP -lwsock32
+#LDFLAGS	+= -L../GeoIP-1.3.1/libGeoIP/.libs
+#DEFS	+= -DUSE_GEOIP=1
 
 # Shouldn't have to touch below here!
 
@@ -96,4 +96,4 @@ uninstall:
 #	$(RM) /etc/webalizer.conf.sample
 
 webalizer_lang.h:
-	$(CP) lang\webalizer_lang.english webalizer_lang.h
+	$(CP) lang/webalizer_lang.english webalizer_lang.h

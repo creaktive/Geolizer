@@ -4,69 +4,21 @@ Info about compiling Webalizer on Win32 platform under MinGW
 by Stanislaw Pusep (stanis@linuxmail.org)
 
 
-First of all, remember: this is a very beta test!!! It *SEEMS* to work
-fine, but no one tested Win32 compilation officially. Use at your own
-risk.
-
-So, if you're still here, what you need to do (I suppose you're
-already familiar to MinGW):
-
-1) Download and extract all dependencies. Currently they are:
-
- # Required:
-
-	* zlib
-	* libpng
-	* libjpeg
-	* libgd
-
- # Optionals:
-
-	* libGeoIP
-
-Get the latest versions, and extract to some cool place. I use 'C:\local\src'.
-Mine one looks like:
-
---
-C:\local\src>dir
- Volume in drive C is Storm
- Volume Serial Number is xxxx-xxxx
-
- Directory of C:\local\src
-
-08/19/2002  18:51    <DIR>          .
-08/19/2002  18:51    <DIR>          ..
-08/14/2002  23:58    <DIR>          gd
-08/14/2002  23:57    <DIR>          jpeg
-08/14/2002  23:45    <DIR>          libpng
-08/19/2002  18:52    <DIR>          webalizer-2.01-10
-08/19/2002  00:34    <DIR>          zlib
-               0 File(s)              0 bytes
-               9 Dir(s)   x,xxx,xxx,xxx bytes free
---
-
-Please note that versions are stripped from lib names!!! This is *very*
-important, if you don't strip'em, you may edit 'Makefile.MinGW'.
-
-
-2) Compile dependencies under MinGW. Note that 'gd' requires 'jpeg' and
-'libpng'; don't forget also that 'libpng' requires 'zlib'.
-So your priority should be:
-
-	* zlib
-	* libpng
-	* libjpeg
-	* libgd
-	* ..everything else
-
-3) Build Webalizer itself. Copy 'Makefile.MinGW' to 'Makefile' and then edit it.
-After this, just:
-
-make distclean
-make
-
-Remember that you *MUST* do 'distclean' because of broken symlink
-'webalizer_lang.h'!
+Wow, since last time I compiled this thingie on MinGW things evolved a lot :)
+Now there's MSYS (http://www.mingw.org/msys.shtml) that closely simulates
+Bash & RXVT so one could simply "./configure; make; make install" on Win32.
+That was exactly what I did to compile zlib, libpng & gd dependencies.
+libGeoIP didn't compiled that fine; I needed to patch the source and I hope
+that libGeoIP 1.3.2 and future releases will have my Win32/MinGW patch
+integrated.
+It's perfectly possible to run configure script for patched webalizer itself
+but I don't thing it's a good idea. If you really wish to do that just set
+appropriate CFLAGS & LDFLAGS. They're almost the same as those set by
+Makefile.MinGW; so why not just "make -f Makefile.MinGW"?!
+So, copy Makefile.MinGW to Makefile, edit it, set proper dependency pathes
+and uncomment GeoIP enabling lines if you got it working :)
+Then simply "make distclean" and "make all". Note that "make distclean" is
+necessary to set proper language header as Win32 doesn't supports symlinks.
 
 
 Have a fun!!!

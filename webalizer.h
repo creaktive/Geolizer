@@ -198,7 +198,8 @@ extern int     dns_children ;                 /* # of DNS children        */
 #ifdef USE_GEOIP
 extern int     use_geoip    ;                 /* Use GeoIP library        */
 extern char    *geoip_dbase ;                 /* Use specific GeoIP dbase */
-#endif
+extern char    gi_db_info[256];               /* GeoIP db info (HTMLized) */
+#endif	/* USE_GEOIP */
 
 extern int     ntop_sites   ;                 /* top n sites to display   */
 extern int     ntop_sitesK  ;                 /* top n sites (by kbytes)  */

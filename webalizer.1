@@ -1,4 +1,4 @@
-.TH webalizer 1 "22-Oct-2001" "Version 2.01" "The Webalizer"
+.TH webalizer 1 "16-Feb-2004" "Version 2.01-10-glzr" "The Webalizer"
 .SH NAME
 webalizer - A web server log file analysis tool.
 .SH SYNOPSIS
@@ -329,6 +329,14 @@ filename must be specified.
 .TP 8
 .B \-E \fInum\fP
 \fBTopExit\fP.  Display the top \fInum\fP exit pages table.
+.PP
+.I GeoIP options
+.TP 8
+.B \-w
+\fBGeoIP\fP.  Disable GeoIP fearure
+.TP 8
+.B \-W \fIfile\fP
+\fBGeoIPDatabase\fP.  Use specific GeoIP database \fIfile\fP.
 .SH CONFIGURATION FILES
 Configuration files are standard \fBascii(7)\fP text files that may be created
 or edited using any standard editor.  Blank lines and lines that begin
@@ -669,6 +677,15 @@ information.
 Dump the search string data to a tab delimited file.  This data is only
 available if processing a web log that contains referrer information and
 had search string information present.
+.PP
+.I GeoIP Feature Keywords
+.TP 8
+.B GeoIP \fP( \fByes\fP | no )
+Enable/disable use of GeoIP feature.
+.TP 8
+.B GeoIPDatabase \fIfile\fP
+Specifies GeoIP database file. Defaults to libGeoIP precompiled one
+(normally \fI/usr/local/share/GeoIP/GeoIP.dat\fP).
 .SH FILES
 .TP 20
 .I webalizer.conf
@@ -697,3 +714,8 @@ the GNU GPL.  See the files "\fICOPYING\fP" and "\fICopyright\fP",
 supplied with all distributions for additional information.
 .SH AUTHOR
 Bradford L. Barrett <\fIbrad@mrunix.net\fP>
+.SH GEOLIZER PATCH
+Integration with \fIlibGeoIP (http://maxmind.com/geoip/)\fP made by
+Stanislaw Y. Pusep <\fIstanis@linuxmail.org\fP>.
+.PP
+Official project page is \fIhttp://sysd.org/proj/log.php#glzr\fP
