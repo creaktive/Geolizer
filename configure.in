@@ -62,10 +62,10 @@ CFLAGS="-I${withval} ${CFLAGS}")
 AC_ARG_WITH(dblib,--with-dblib=DIR          Alternate location for db library,
 LDFLAGS="-L${withval} ${LDFLAGS}"; HAVE_DB="yes", HAVE_DB="")
 
-AC_ARG_WITH(GeoIP-inc,--with-geoip-inc=DIR      Alternate location for GeoIP headers,
+AC_ARG_WITH(geoip-inc,--with-geoip-inc=DIR      Alternate location for GeoIP headers,
 EXTRA_GEOIPINC="${withval}")
 
-AC_ARG_WITH(GeoIP-lib,--with-geoip-lib=DIR      Alternate location for GeoIP library,
+AC_ARG_WITH(geoip-lib,--with-geoip-lib=DIR      Alternate location for GeoIP library,
 EXTRA_GEOIPLIB="${withval}")
 
 dnl enable-dns forces use of DNS code
@@ -159,7 +159,7 @@ fi
 dnl Check GeoIP if user wants it
 if test "$USE_GEOIP" = "yes"; then
  dnl Check for GeoIP headers
- AC_FIND_PATH(GEOIPINC,GeoIP.h,"", ${PREFIX}/include /usr/local/include /usr/include /include ./ ${EXTRA_GEOIPINC})
+ AC_FIND_PATH(GEOIPINC,GeoIP.h,"", ${PREFIX}/include /usr/local/include /usr/include /include ${prefix}/include ./ ${EXTRA_GEOIPINC})
  if test "$GEOIPINC" = ""; then
   AC_MSG_ERROR(GeoIP headers not found... please install GeoIP.)
  else
@@ -167,7 +167,7 @@ if test "$USE_GEOIP" = "yes"; then
  fi
 
  dnl Check for GeoIP library
- AC_FIND_PATH(GEOIPLIB,libGeoIP.a,"", ${PREFIX}/lib /usr/local/lib /usr/lib /lib ./ ${EXTRA_GEOIPLIB})
+ AC_FIND_PATH(GEOIPLIB,libGeoIP.a,"", ${PREFIX}/lib /usr/local/lib /usr/lib /lib ${prefix}/lib ./ ${EXTRA_GEOIPLIB})
  if test "$GEOIPLIB" = ""; then
   AC_MSG_ERROR(GeoIP library not found... please install GeoIP.)
  else

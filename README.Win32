@@ -22,7 +22,6 @@ already familiar to MinGW):
 
  # Optionals:
 
-	* bz2lib
 	* libGeoIP
 
 Get the latest versions, and extract to some cool place. I use 'C:\local\src'.

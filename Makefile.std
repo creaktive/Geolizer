@@ -60,6 +60,7 @@ webalizer:	webalizer.o webalizer.h hashtab.o hashtab.h  \
                 output.o output.h graphs.o graphs.h lang.h   \
 		webalizer_lang.h
 	$(CC) ${LDFLAGS} -o webalizer webalizer.o hashtab.o linklist.o preserve.o parser.o output.o dns_resolv.o graphs.o ${LIBS}
+	strip webalizer
 
 webalizer.o:	webalizer.c webalizer.h parser.h output.h preserve.h \
 		graphs.h dns_resolv.h webalizer_lang.h

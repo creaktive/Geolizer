@@ -74,7 +74,7 @@
 #ifdef USE_GEOIP
 #include <GeoIP.h>
 #define GEOIP_FLAGS GEOIP_MEMORY_CACHE
-#endif
+#endif	/* USE_GEOIP */
 
 #include "webalizer.h"                         /* main header              */
 #include "output.h"
@@ -107,7 +107,7 @@ char    *our_gzgets(gzFile, char *, int);           /* our gzgets          */
 
 char    *version     = "2.01";                /* program version          */
 char    *editlvl     = "10";                  /* edit level               */
-char    *moddate     = "22-Aug-2002";         /* modification date        */
+char    *moddate     = "25-Aug-2002";         /* modification date        */
 char    *copyright   = "Copyright 1997-2001 by Bradford L. Barrett";
 
 int     verbose      = 2;                     /* 2=verbose,1=err, 0=none  */ 
@@ -148,7 +148,7 @@ int     dns_children = 0;                     /* DNS children (0=don't do)*/
 int     use_geoip    = 1;                     /* Use GeoIP library        */
 char    *geoip_dbase = NULL;                  /* Use specific GeoIP dbase */
 GeoIP	*gi          = NULL;                  /* GeoIP handle             */
-#endif
+#endif	/* USE_GEOIP */
 
 int     ntop_sites   = 30;                    /* top n sites to display   */
 int     ntop_sitesK  = 10;                    /* top n sites (by kbytes)  */
@@ -274,12 +274,14 @@ int main(int argc, char *argv[])
    /* add default index. alias */
    add_nlist("index.",&index_alias);
 
+#ifndef WIN32
    sprintf(tmp_buf,"%s/webalizer.conf",ETCDIR);
    /* check for default config file */
    if (!access("webalizer.conf",F_OK))
       get_config("webalizer.conf");
    else if (!access(tmp_buf,F_OK))
       get_config(tmp_buf);
+#endif	/* WIN32 */
 
    /* get command line options */
    opterr = 0;     /* disable parser errors */
@@ -287,7 +289,7 @@ int main(int argc, char *argv[])
    while ((i=getopt(argc,argv,"a:A:c:C:dD:e:E:fF:g:GhHiI:l:Lm:M:n:N:o:pP:qQr:R:s:S:t:Tu:U:vVx:XY"))!=EOF)
 #else
    while ((i=getopt(argc,argv,"a:A:c:C:dD:e:E:fF:g:GhHiI:l:Lm:M:n:N:o:pP:qQr:R:s:S:t:Tu:U:vVwW:x:XY"))!=EOF)
-#endif
+#endif	/* USE_GEOIP */
    {
       switch (i)
       {
@@ -333,7 +335,7 @@ int main(int argc, char *argv[])
 #ifdef USE_GEOIP
         case 'w': use_geoip=0;               break;  /* Disable GeoIP       */
         case 'W': geoip_dbase=optarg;        break;  /* Use GeoIP database  */
-#endif
+#endif	/* USE_GEOIP */
         case 'x': html_ext=optarg;           break;  /* HTML file extension */
         case 'X': hide_sites=1;              break;  /* Hide ind. sites     */
         case 'Y': ctry_graph=0;              break;  /* Supress ctry graph  */
@@ -462,6 +464,27 @@ int main(int argc, char *argv[])
       }
    }
 
+#ifdef USE_GEOIP
+   /* Open GeoIP database */
+   if (use_geoip)
+   {
+      if (geoip_dbase!=NULL)
+      {
+         if (verbose>1) printf("Using GeoIP database %s\n", geoip_dbase);
+         gi=GeoIP_open(geoip_dbase, GEOIP_FLAGS);
+      }
+      else
+      {
+         if (verbose>1) printf("Using system-wide GeoIP database\n");
+         gi=GeoIP_new(GEOIP_FLAGS);
+      }
+      
+      /* GeoIP already prints error (in English!) */
+      if (gi==NULL)
+         exit(1);
+   }
+#endif	/* USE_GEOIP */
+
    /* switch directories if needed */
    if (out_dir)
    {
@@ -542,21 +565,6 @@ int main(int argc, char *argv[])
    { if ( (top_ctrys=calloc(ntop_ctrys,sizeof(CLISTPTR))) == NULL)
     /* Can't get memory, Top Countries disabled! */
     {if (verbose) fprintf(stderr,"%s\n",msg_nomem_tc); ntop_ctrys=0;}}
-
-#ifdef USE_GEOIP
-   /* Open GeoIP database */
-   if (use_geoip)
-   {
-      if (geoip_dbase!=NULL)
-         gi=GeoIP_open(geoip_dbase, GEOIP_FLAGS);
-      else
-         gi=GeoIP_new(GEOIP_FLAGS);
-      
-      /* GeoIP itself says what happened */
-      if (gi==NULL)
-         exit(1);
-   }
-#endif
 
    start_time = times(&mytms);
 
@@ -1381,7 +1389,7 @@ int main(int argc, char *argv[])
 
 #ifdef USE_GEOIP
       if (gi) GeoIP_delete(gi);
-#endif
+#endif	/* USE_GEOIP */
 
       /* Whew, all done! Exit with completion status (0) */
       exit(0);
@@ -1491,7 +1499,7 @@ void get_config(char *fname)
 #ifdef USE_GEOIP
                      "GeoIP",             /* Use GeoIP library (0=no)   88  */
                      "GeoIPDatabase",     /* GeoIP database             89  */
-#endif
+#endif	/* USE_GEOIP */
                    };
 
    FILE *fp;
@@ -1638,7 +1646,7 @@ void get_config(char *fname)
 #ifdef USE_GEOIP
         case 88: use_geoip=(value[0]=='n')?0:1; break;    /* GeoIP          */
         case 89: geoip_dbase=save_opt(value); break;      /* GeoIPDatabase  */
-#endif
+#endif	/* USE_GEOIP */
       }
    }
    fclose(fp);
@@ -1733,11 +1741,17 @@ void print_version()
 #endif
 #ifdef USE_GEOIP
     printf("GeoIP ");
+#endif	/* USE_GEOIP */
+
+#if !((defined(USE_DNS)) || (defined(USE_GEOIP)))
+    printf("none");
 #endif
 
-//    printf("none");
-
+#ifndef WIN32
     printf("\nDefault config dir: %s\n\n",ETCDIR);
+#else
+    printf("\nNo default config dir (Win32 Build)\n\n");
+#endif	/* WIN32 */
  }
  else printf("\n");
  exit(1);

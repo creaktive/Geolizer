@@ -1129,16 +1129,16 @@ else
 fi
 
 
-# Check whether --with-GeoIP-inc or --without-GeoIP-inc was given.
-if test "${with_GeoIP_inc+set}" = set; then
-  withval="$with_GeoIP_inc"
+# Check whether --with-geoip-inc or --without-geoip-inc was given.
+if test "${with_geoip_inc+set}" = set; then
+  withval="$with_geoip_inc"
   EXTRA_GEOIPINC="${withval}"
 fi
 
 
-# Check whether --with-GeoIP-lib or --without-GeoIP-lib was given.
-if test "${with_GeoIP_lib+set}" = set; then
-  withval="$with_GeoIP_lib"
+# Check whether --with-geoip-lib or --without-geoip-lib was given.
+if test "${with_geoip_lib+set}" = set; then
+  withval="$with_geoip_lib"
   EXTRA_GEOIPLIB="${withval}"
 fi
 
@@ -1895,7 +1895,7 @@ fi
 
 INPATH=$ac_cv_GEOIPINC
 if test "$INPATH" = ""; then
- for i in ${PREFIX}/include /usr/local/include /usr/include /include ./ ${EXTRA_GEOIPINC}; do
+ for i in ${PREFIX}/include /usr/local/include /usr/include /include ${prefix}/include ./ ${EXTRA_GEOIPINC}; do
    if test -f "$i/GeoIP.h"; then
    INPATH=$i
    fi
@@ -1928,7 +1928,7 @@ fi
 
 INPATH=$ac_cv_GEOIPLIB
 if test "$INPATH" = ""; then
- for i in ${PREFIX}/lib /usr/local/lib /usr/lib /lib ./ ${EXTRA_GEOIPLIB}; do
+ for i in ${PREFIX}/lib /usr/local/lib /usr/lib /lib ${prefix}/lib ./ ${EXTRA_GEOIPLIB}; do
    if test -f "$i/libGeoIP.a"; then
    INPATH=$i
    fi

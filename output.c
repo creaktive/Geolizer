@@ -63,7 +63,7 @@
 #ifdef USE_GEOIP
 #include <GeoIP.h>
 extern GeoIP *gi;
-#endif
+#endif	/* USE_GEOIP */
 
 #include "webalizer.h"                        /* main header              */
 #include "lang.h"
@@ -1932,7 +1932,7 @@ void top_ctry_table()
    const char *result;
    char code[3];
    code[2]='\0';   
-#endif
+#endif	/* USE_GEOIP */
 
    /* scan hash table adding up domain totals */
    for (i=0;i<MAXHASH;i++)
@@ -1956,8 +1956,8 @@ void top_ctry_table()
 		     country=NULL;
 		  else
 	          {
-	             code[0]=result[0] + 32;
-	             code[1]=result[1] + 32;
+	             code[0]=tolower(result[0]);
+	             code[1]=tolower(result[1]);
 
 		     country=code;
 	          }
@@ -1967,7 +1967,7 @@ void top_ctry_table()
 	       
 #else
 	       country=NULL;
-#endif
+#endif	/* USE_GEOIP */
 	    }
 	    else
 	    {
@@ -1992,6 +1992,13 @@ void top_ctry_table()
 	    }
 	    if ((!ctry_fnd)||(country==NULL))
             {
+#ifdef USE_GEOIP
+	       if (use_geoip && debug_mode)
+	          fprintf(stderr, "--> unresolved country for '%s' (GeoIP says %s:%s)\n",
+			  hptr->string,
+			  GeoIP_country_code_by_addr(gi, hptr->string),
+			  GeoIP_country_name_by_addr(gi, hptr->string));
+#endif	/* USE_GEOIP */
     	       ctry[0].count+=hptr->count;
     	       ctry[0].files+=hptr->files;
     	       ctry[0].xfer +=hptr->xfer;

@@ -13,7 +13,6 @@
 
 #BINDIR	= ${exec_prefix}/bin
 #MANDIR	= ${prefix}/man/man1
-ETCDIR	= /etc
 CC	= gcc
 #CP	= cp -fp
 CP	= copy /Y
@@ -23,7 +22,7 @@ RM	= del
 CFLAGS	= -Wall -O2 -IWin32 -I../zlib
 LIBS	= -lgd -lpng -lz -lm -liberty
 LDFLAGS	= -L../gd -L../libpng -L../zlib
-DEFS	= -DWIN32 -DETCDIR=\"${ETCDIR}\" -DHAVE_GETOPT_H=1 -DHAVE_MATH_H=1
+DEFS	= -DWIN32 -DHAVE_GETOPT_H=1 -DHAVE_MATH_H=1
 
 # where are the GD header files?
 GDLIB	=../gd
@@ -32,7 +31,7 @@ GDLIB	=../gd
 #CFLAGS	= -Wall -O2 -IWin32 -I../zlib -I../libGeoIP
 #LIBS	= -lgd -lpng -lz -lm -liberty -lGeoIP -lws2_32
 #LDFLAGS	= -L../gd -L../libpng -L../zlib -L../libGeoIP
-#DEFS	= -DWIN32 -DETCDIR=\"${ETCDIR}\" -DHAVE_GETOPT_H=1 -DHAVE_MATH_H=1 -DUSE_GEOIP=1
+#DEFS	= -DWIN32 -DHAVE_GETOPT_H=1 -DHAVE_MATH_H=1 -DUSE_GEOIP=1
 
 # Shouldn't have to touch below here!
 
