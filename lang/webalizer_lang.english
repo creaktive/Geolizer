@@ -336,6 +336,8 @@ struct  country_code ctry[] = {
 { IDX_3C('o','r','g'),    "Non-Profit Organization",          0,0,0 },
 { IDX_4C('a','r','p','a'),"Old style Arpanet (arpa)",         0,0,0 },
 { IDX_4C('n','a','t','o'),"Nato field (nato)",                0,0,0 },
+{ IDX_2C('a','1'),        "Anonymous Proxy",                  0,0,0 },
+{ IDX_2C('a','2'),        "Satellite Provider",               0,0,0 },
 { IDX_2C('a','d'),        "Andorra",                          0,0,0 },
 { IDX_2C('a','e'),        "United Arab Emirates",             0,0,0 },
 { IDX_2C('a','f'),        "Afghanistan",                      0,0,0 },

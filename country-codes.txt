@@ -254,3 +254,5 @@ NET  Network
 ORG  Non-Profit Organization
 ARPA Old style Arpanet (arpa)
 NATO Nato field (nato)
+A1   Anonymous Proxy
+A2   Satellite Provider

@@ -71,6 +71,11 @@
 #endif  /* HAVE_DB_185_H */
 #endif  /* USE_DNS */
 
+#ifdef USE_GEOIP
+#include <GeoIP.h>
+#define GEOIP_FLAGS GEOIP_MEMORY_CACHE
+#endif
+
 #include "webalizer.h"                         /* main header              */
 #include "output.h"
 #include "parser.h"
@@ -102,7 +107,7 @@ char    *our_gzgets(gzFile, char *, int);           /* our gzgets          */
 
 char    *version     = "2.01";                /* program version          */
 char    *editlvl     = "10";                  /* edit level               */
-char    *moddate     = "13-Jul-2002";         /* modification date        */
+char    *moddate     = "22-Aug-2002";         /* modification date        */
 char    *copyright   = "Copyright 1997-2001 by Bradford L. Barrett";
 
 int     verbose      = 2;                     /* 2=verbose,1=err, 0=none  */ 
@@ -142,6 +147,7 @@ int     dns_children = 0;                     /* DNS children (0=don't do)*/
 #ifdef USE_GEOIP
 int     use_geoip    = 1;                     /* Use GeoIP library        */
 char    *geoip_dbase = NULL;                  /* Use specific GeoIP dbase */
+GeoIP	*gi          = NULL;                  /* GeoIP handle             */
 #endif
 
 int     ntop_sites   = 30;                    /* top n sites to display   */
@@ -214,7 +220,7 @@ struct  log_struct log_rec;                   /* expanded log storage     */
 
 time_t  now;                                  /* used by cur_time funct   */
 struct  tm *tp;                               /* to generate timestamp    */
-char    timestamp[32];                        /* for the reports          */
+char    timestamp[64];                        /* for the reports          */
 
 gzFile  gzlog_fp;                             /* gzip logfile pointer     */
 FILE    *log_fp;                              /* regular logfile pointer  */
@@ -277,7 +283,11 @@ int main(int argc, char *argv[])
 
    /* get command line options */
    opterr = 0;     /* disable parser errors */
+#ifndef USE_GEOIP
+   while ((i=getopt(argc,argv,"a:A:c:C:dD:e:E:fF:g:GhHiI:l:Lm:M:n:N:o:pP:qQr:R:s:S:t:Tu:U:vVx:XY"))!=EOF)
+#else
    while ((i=getopt(argc,argv,"a:A:c:C:dD:e:E:fF:g:GhHiI:l:Lm:M:n:N:o:pP:qQr:R:s:S:t:Tu:U:vVwW:x:XY"))!=EOF)
+#endif
    {
       switch (i)
       {
@@ -532,6 +542,21 @@ int main(int argc, char *argv[])
    { if ( (top_ctrys=calloc(ntop_ctrys,sizeof(CLISTPTR))) == NULL)
     /* Can't get memory, Top Countries disabled! */
     {if (verbose) fprintf(stderr,"%s\n",msg_nomem_tc); ntop_ctrys=0;}}
+
+#ifdef USE_GEOIP
+   /* Open GeoIP database */
+   if (use_geoip)
+   {
+      if (geoip_dbase!=NULL)
+         gi=GeoIP_open(geoip_dbase, GEOIP_FLAGS);
+      else
+         gi=GeoIP_new(GEOIP_FLAGS);
+      
+      /* GeoIP itself says what happened */
+      if (gi==NULL)
+         exit(1);
+   }
+#endif
 
    start_time = times(&mytms);
 
@@ -1352,6 +1377,10 @@ int main(int argc, char *argv[])
 
 #ifdef USE_DNS
       if (dns_db) close_cache();
+#endif
+
+#ifdef USE_GEOIP
+      if (gi) GeoIP_delete(gi);
 #endif
 
       /* Whew, all done! Exit with completion status (0) */

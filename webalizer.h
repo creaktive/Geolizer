@@ -123,6 +123,10 @@
 #endif  /* INADDR_NONE */
 #endif
 
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 /* Response code structure */
 struct response_code {     char    *desc;         /* response code struct  */
                          u_long    count; };

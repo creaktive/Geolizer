@@ -62,7 +62,7 @@
 /* GeoIP stuff */
 #ifdef USE_GEOIP
 #include <GeoIP.h>
-#define GEOIP_FLAGS GEOIP_MEMORY_CACHE
+extern GeoIP *gi;
 #endif
 
 #include "webalizer.h"                        /* main header              */
@@ -1931,20 +1931,7 @@ void top_ctry_table()
 #ifdef USE_GEOIP
    const char *result;
    char code[3];
-   GeoIP *gi=NULL;
-
-   code[2]='\0';
-   
-   if (use_geoip)
-   {
-      if (geoip_dbase!=NULL)
-         gi=GeoIP_open(geoip_dbase, GEOIP_FLAGS);
-      else
-         gi=GeoIP_new(GEOIP_FLAGS);
-      
-      if (gi==NULL)
-         return;
-   }
+   code[2]='\0';   
 #endif
 
    /* scan hash table adding up domain totals */
@@ -2013,11 +2000,6 @@ void top_ctry_table()
          hptr=hptr->next;
       }
    }
-
-#ifdef USE_GEOIP
-   if (use_geoip)
-      GeoIP_delete(gi);
-#endif
 
    for (i=0;ctry[i].desc;i++)
    {

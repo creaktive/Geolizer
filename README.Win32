@@ -1,0 +1,73 @@
+Info about compiling Webalizer on Win32 platform under MinGW
+============================================================
+
+by Stanislaw Pusep (stanis@linuxmail.org)
+
+
+First of all, remember: this is a very beta test!!! It *SEEMS* to work
+fine, but no one tested Win32 compilation officially. Use at your own
+risk.
+
+So, if you're still here, what you need to do (I suppose you're
+already familiar to MinGW):
+
+1) Download and extract all dependencies. Currently they are:
+
+ # Required:
+
+	* zlib
+	* libpng
+	* libjpeg
+	* libgd
+
+ # Optionals:
+
+	* bz2lib
+	* libGeoIP
+
+Get the latest versions, and extract to some cool place. I use 'C:\local\src'.
+Mine one looks like:
+
+--
+C:\local\src>dir
+ Volume in drive C is Storm
+ Volume Serial Number is xxxx-xxxx
+
+ Directory of C:\local\src
+
+08/19/2002  18:51    <DIR>          .
+08/19/2002  18:51    <DIR>          ..
+08/14/2002  23:58    <DIR>          gd
+08/14/2002  23:57    <DIR>          jpeg
+08/14/2002  23:45    <DIR>          libpng
+08/19/2002  18:52    <DIR>          webalizer-2.01-10
+08/19/2002  00:34    <DIR>          zlib
+               0 File(s)              0 bytes
+               9 Dir(s)   x,xxx,xxx,xxx bytes free
+--
+
+Please note that versions are stripped from lib names!!! This is *very*
+important, if you don't strip'em, you may edit 'Makefile.MinGW'.
+
+
+2) Compile dependencies under MinGW. Note that 'gd' requires 'jpeg' and
+'libpng'; don't forget also that 'libpng' requires 'zlib'.
+So your priority should be:
+
+	* zlib
+	* libpng
+	* libjpeg
+	* libgd
+	* ..everything else
+
+3) Build Webalizer itself. Copy 'Makefile.MinGW' to 'Makefile' and then edit it.
+After this, just:
+
+make distclean
+make
+
+Remember that you *MUST* do 'distclean' because of broken symlink
+'webalizer_lang.h'!
+
+
+Have a fun!!!

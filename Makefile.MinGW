@@ -1,0 +1,100 @@
+#
+# Makefile for webalizer - a web server logfile analysis thingie
+#
+# (c)1997-2000 by Bradford L. Barrett (brad@mrunix.net)
+# Distributed under the GNU GPL. See "README" and "Copyright"
+# files supplied with this distribution for more information.
+#
+# Modified by Stanislaw Pusep (stanis@linuxmail.org) to work with MinGW
+# To build this, first compile all dependencies, check LDFLAGS and then:
+#
+# make distclean
+# make all
+
+#BINDIR	= ${exec_prefix}/bin
+#MANDIR	= ${prefix}/man/man1
+ETCDIR	= /etc
+CC	= gcc
+#CP	= cp -fp
+CP	= copy /Y
+#RM	= rm -f
+RM	= del
+
+CFLAGS	= -Wall -O2 -IWin32 -I../zlib
+LIBS	= -lgd -lpng -lz -lm -liberty
+LDFLAGS	= -L../gd -L../libpng -L../zlib
+DEFS	= -DWIN32 -DETCDIR=\"${ETCDIR}\" -DHAVE_GETOPT_H=1 -DHAVE_MATH_H=1
+
+# where are the GD header files?
+GDLIB	=../gd
+
+# Uncomment this if compiling with GeoIP support:
+#CFLAGS	= -Wall -O2 -IWin32 -I../zlib -I../libGeoIP
+#LIBS	= -lgd -lpng -lz -lm -liberty -lGeoIP -lws2_32
+#LDFLAGS	= -L../gd -L../libpng -L../zlib -L../libGeoIP
+#DEFS	= -DWIN32 -DETCDIR=\"${ETCDIR}\" -DHAVE_GETOPT_H=1 -DHAVE_MATH_H=1 -DUSE_GEOIP=1
+
+# Shouldn't have to touch below here!
+
+all: webalizer.exe
+
+webalizer.exe:	webalizer.o webalizer.h hashtab.o hashtab.h  \
+		linklist.o linklist.h preserve.o preserve.h  \
+                dns_resolv.o dns_resolv.h parser.o parser.h  \
+                output.o output.h graphs.o graphs.h lang.h   \
+		webalizer_lang.h win_port.o
+	$(CC) ${LDFLAGS} -o webalizer.exe webalizer.o hashtab.o linklist.o preserve.o parser.o output.o dns_resolv.o graphs.o win_port.o ${LIBS}
+	strip webalizer.exe
+
+webalizer.o:	webalizer.c webalizer.h parser.h output.h preserve.h \
+		graphs.h dns_resolv.h webalizer_lang.h
+	$(CC) ${CFLAGS} ${DEFS} -c webalizer.c
+
+parser.o:	parser.c parser.h webalizer.h lang.h
+	$(CC) ${CFLAGS} ${DEFS} -c parser.c
+
+hashtab.o:	hashtab.c hashtab.h dns_resolv.h webalizer.h lang.h
+	$(CC) ${CFLAGS} ${DEFS} -c hashtab.c
+
+linklist.o:	linklist.c linklist.h webalizer.h lang.h
+	$(CC) ${CFLAGS} ${DEFS} -c linklist.c
+
+output.o:	output.c output.h webalizer.h preserve.h \
+		hashtab.h graphs.h lang.h
+	$(CC) ${CFLAGS} ${DEFS} -c output.c
+
+preserve.o:	preserve.c preserve.h webalizer.h parser.h   \
+		hashtab.h graphs.h lang.h
+	$(CC) ${CFLAGS} ${DEFS} -c preserve.c
+
+dns_resolv.o:	dns_resolv.c dns_resolv.h lang.h webalizer.h
+	$(CC) ${CFLAGS} ${DEFS} -c dns_resolv.c
+
+graphs.o:	graphs.c graphs.h webalizer.h lang.h
+	$(CC) ${CFLAGS} ${DEFS} -I${GDLIB} -c graphs.c
+
+win_port.o:	Win32/sys/times.h Win32/sys/utsname.h
+	$(CC) ${CFLAGS} ${DEFS} -c win_port.c
+
+clean:
+	$(RM) webalizer.exe *.o usage*.png daily*.png hourly*.png ctry*.png
+	$(RM) *.html *.hist *.current core *.gif
+
+distclean: clean
+	$(RM) webalizer.conf *.tar *.tgz *.Z *.tar.gz
+	$(RM) webalizer_lang.h config.cache config.log config.status
+
+install: all
+	@echo can't install: sorry this is win32 makefile!
+#	$(CP) webalizer.1   ${MANDIR}/webalizer.1
+#	$(CP) webalizer.exe ${BINDIR}/webalizer.exe
+#	$(CP) sample.conf   /etc/webalizer.conf.sample
+
+uninstall:
+	@echo can't uninstall: sorry this is win32 makefile!
+#	$(RM) ${MANDIR}/webalizer.1
+#	$(RM) ${BINDIR}/webalizer.exe
+#	$(RM) /etc/webalizer.conf.sample
+
+webalizer_lang.h:
+	$(CP) lang\webalizer_lang.english webalizer_lang.h
