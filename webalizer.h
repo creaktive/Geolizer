@@ -191,6 +191,11 @@ extern char    *blank_str   ;                 /* blank string             */
 extern char    *dns_cache   ;                 /* DNS cache file name      */
 extern int     dns_children ;                 /* # of DNS children        */
 
+#ifdef USE_GEOIP
+extern int     use_geoip    ;                 /* Use GeoIP library        */
+extern char    *geoip_dbase ;                 /* Use specific GeoIP dbase */
+#endif
+
 extern int     ntop_sites   ;                 /* top n sites to display   */
 extern int     ntop_sitesK  ;                 /* top n sites (by kbytes)  */
 extern int     ntop_urls    ;                 /* top n url's to display   */
