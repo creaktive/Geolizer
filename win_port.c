@@ -18,7 +18,7 @@ int	uname(struct utsname *name)
 
 	osver.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 	GetVersionEx(&osver);
-	sprintf(buf, "%ld.%ld (Build %d)", osver.dwMajorVersion, osver.dwMinorVersion, osver.dwBuildNumber & 0xffff);
+	sprintf(buf, "%ld.%ld (Build %d)", osver.dwMajorVersion, osver.dwMinorVersion, (int) (osver.dwBuildNumber & 0xffff));
 	strcpy(name->release, buf);
 
 	strcpy(name->sysname, "Windows");

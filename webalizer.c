@@ -107,7 +107,7 @@ char    *our_gzgets(gzFile, char *, int);           /* our gzgets          */
 
 char    *version     = "2.01";                /* program version          */
 char    *editlvl     = "10";                  /* edit level               */
-char    *moddate     = "25-Aug-2002";         /* modification date        */
+char    *moddate     = "26-Aug-2002";         /* modification date        */
 char    *copyright   = "Copyright 1997-2001 by Bradford L. Barrett";
 
 int     verbose      = 2;                     /* 2=verbose,1=err, 0=none  */ 
@@ -475,7 +475,7 @@ int main(int argc, char *argv[])
       }
       else
       {
-         if (verbose>1) printf("Using system-wide GeoIP database\n");
+         if (verbose>1) printf("Using default GeoIP database\n");
          gi=GeoIP_new(GEOIP_FLAGS);
       }
       
