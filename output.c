@@ -1952,7 +1952,7 @@ void top_ctry_table()
                if (use_geoip)
 	       {
                   result = GeoIP_country_code_by_addr(gi, hptr->string);
-                  if ((result[0]=='-')&&(result[1]=='-'))
+                  if ((result == NULL)||((result[0]=='-')&&(result[1]=='-')))
 		     country=NULL;
 		  else
 	          {
