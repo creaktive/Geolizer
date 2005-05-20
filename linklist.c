@@ -190,12 +190,12 @@ GLISTPTR new_glist(char *str, char *name)
 int add_glist(char *str, GLISTPTR *list)
 {
    GLISTPTR newptr,cptr,pptr;
-   char temp_buf[80];
+   char temp_buf[256];
    char *name=temp_buf;
 
    /* make local copy of string */
-   strncpy(temp_buf,str,79);
-   temp_buf[79]=0;
+   strncpy(temp_buf,str,255);
+   temp_buf[255]=0;
 
    while (!isspace((int)*name)&&*name!=0) name++;
    if (*name==0) name=temp_buf;

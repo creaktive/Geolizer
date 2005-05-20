@@ -149,6 +149,10 @@ u_long   a_ctr         = 0;                   /* counter for sort array   */
 
 FILE     *out_fp;
 
+/* human readable size warp buffer */
+char warpbuf[32][32];
+int wb_index = -1;
+
 /*********************************************/
 /* WRITE_HTML_HEAD - output top of HTML page */
 /*********************************************/
@@ -1887,14 +1891,14 @@ void top_users_table()
               "<TD ALIGN=right><FONT SIZE=\"-2\">%3.02f%%</FONT></TD>\n"    \
               "<TD ALIGN=right><FONT SIZE=\"-1\"><B>%lu</B></FONT></TD>\n"  \
               "<TD ALIGN=right><FONT SIZE=\"-2\">%3.02f%%</FONT></TD>\n"    \
-              "<TD ALIGN=right><FONT SIZE=\"-1\"><B>%.0f</B></FONT></TD>\n" \
+              "<TD ALIGN=right><FONT SIZE=\"-1\"><B>%s</B></FONT></TD>\n" \
               "<TD ALIGN=right><FONT SIZE=\"-2\">%3.02f%%</FONT></TD>\n"    \
               "<TD ALIGN=right><FONT SIZE=\"-1\"><B>%lu</B></FONT></TD>\n"  \
               "<TD ALIGN=right><FONT SIZE=\"-2\">%3.02f%%</FONT></TD>\n"    \
               "<TD ALIGN=left NOWRAP><FONT SIZE=\"-1\">",
               i+1,iptr->count,
               (t_hit==0)?0:((float)iptr->count/t_hit)*100.0,iptr->files,
-              (t_file==0)?0:((float)iptr->files/t_file)*100.0,iptr->xfer/1024,
+              (t_file==0)?0:((float)iptr->files/t_file)*100.0,hr_size(iptr->xfer),
               (t_xfer==0)?0:((float)iptr->xfer/t_xfer)*100.0,iptr->visit,
               (t_visit==0)?0:((float)iptr->visit/t_visit)*100.0);
 
@@ -1959,10 +1963,10 @@ int all_users_page(u_long i_reg, u_long i_grp)
       if (iptr->flag == OBJ_GRP)
       {
          fprintf(out_fp,
-         "%-8lu %6.02f%%  %8lu %6.02f%%  %8.0f %6.02f%%  %8lu %6.02f%%  %s\n",
+         "%-8lu %6.02f%%  %8lu %6.02f%%  %8s %6.02f%%  %8lu %6.02f%%  %s\n",
             iptr->count,
             (t_hit==0)?0:((float)iptr->count/t_hit)*100.0,iptr->files,
-            (t_file==0)?0:((float)iptr->files/t_file)*100.0,iptr->xfer/1024,
+            (t_file==0)?0:((float)iptr->files/t_file)*100.0,hr_size(iptr->xfer),
             (t_xfer==0)?0:((float)iptr->xfer/t_xfer)*100.0,iptr->visit,
             (t_visit==0)?0:((float)iptr->visit/t_visit)*100.0,
             iptr->string);
@@ -1980,10 +1984,10 @@ int all_users_page(u_long i_reg, u_long i_grp)
       if (iptr->flag == OBJ_REG)
       {
          fprintf(out_fp,
-         "%-8lu %6.02f%%  %8lu %6.02f%%  %8.0f %6.02f%%  %8lu %6.02f%%  %s\n",
+         "%-8lu %6.02f%%  %8lu %6.02f%%  %8s %6.02f%%  %8lu %6.02f%%  %s\n",
             iptr->count,
             (t_hit==0)?0:((float)iptr->count/t_hit)*100.0,iptr->files,
-            (t_file==0)?0:((float)iptr->files/t_file)*100.0,iptr->xfer/1024,
+            (t_file==0)?0:((float)iptr->files/t_file)*100.0,hr_size(iptr->xfer),
             (t_xfer==0)?0:((float)iptr->xfer/t_xfer)*100.0,iptr->visit,
             (t_visit==0)?0:((float)iptr->visit/t_visit)*100.0,
             iptr->string);
@@ -2912,14 +2916,12 @@ FILE *open_out_file(char *filename)
 const char *hr_size(unsigned long long int size)
 {
    int base=1024;
-   char suffixes[14]="??KbMbGbTbPbEb";
+   char suffixes[14]="??KBMBGBTBPBEB";
    float n=size;
    int usesuf=0;
-   static char warpbuf[32][32];
-   static int index = -1;
 
-   if (index<0 || index>32)
-      index=0;
+   if (wb_index<0 || wb_index>31)
+      wb_index=0;
 
    while (n>=base && usesuf<=10)
    {
@@ -2928,10 +2930,10 @@ const char *hr_size(unsigned long long int size)
    }
 
    if (usesuf)
-      snprintf(warpbuf[index], 31, \
+      snprintf(warpbuf[wb_index], 31, \
                "%.2f&nbsp;%c%c", n, suffixes[usesuf], suffixes[usesuf+1]);
    else
-      snprintf(warpbuf[index], 31, "%d&nbsp;bytes", (unsigned int) size);
+      snprintf(warpbuf[wb_index], 31, "%d&nbsp;bytes", (unsigned int) size);
 
-   return warpbuf[index++];
+   return warpbuf[wb_index++];
 }

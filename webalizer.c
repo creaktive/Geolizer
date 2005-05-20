@@ -107,7 +107,7 @@ char    *our_gzgets(gzFile, char *, int);           /* our gzgets          */
 
 char    *version     = "2.01";                /* program version          */
 char    *editlvl     = "10-glzr";             /* edit level               */
-char    *moddate     = "16-Feb-2004";         /* modification date        */
+char    *moddate     = "20-May-2005";         /* modification date        */
 char    *copyright   = "Copyright 1997-2001 by Bradford L. Barrett";
 
 int     verbose      = 2;                     /* 2=verbose,1=err, 0=none  */ 

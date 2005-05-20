@@ -16,8 +16,8 @@
 #define MAXURL   1024                  /* Max HTTP request/URL field size  */
 #define MAXURLH  128                   /* Max URL field size in htab       */
 #define MAXREF   1024                  /* Max referrer field size          */
-#define MAXREFH  128                   /* Max referrer field size in htab  */
-#define MAXAGENT 64                    /* Max user agent field size        */
+#define MAXREFH  512                   /* Max referrer field size in htab  */
+#define MAXAGENT 256                   /* Max user agent field size        */
 #define MAXCTRY  48                    /* Max country name size            */
 #define MAXSRCH  256                   /* Max size of search string buffer */
 #define MAXSRCHH 64                    /* Max size of search str in htab   */
