@@ -16,6 +16,7 @@
 # GNU General Public License for more details (file "COPYING").
 #
 
+datadir = @datarootdir@
 prefix  = @prefix@
 exec_prefix = @exec_prefix@
 

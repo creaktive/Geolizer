@@ -63,7 +63,6 @@
 #ifdef USE_GEOIP
 #include <GeoIP.h>
 extern GeoIP *gi;
-#define GEOIP_OK(r) ((r!=NULL)&&(r[0]!='-')&&(r[1]!='-'))
 #endif	/* USE_GEOIP */
 
 #include "webalizer.h"                        /* main header              */
@@ -73,6 +72,10 @@ extern GeoIP *gi;
 #include "linklist.h"
 #include "graphs.h"
 #include "output.h"
+
+#ifdef USE_FLAGS
+#include "flags.h"
+#endif	/* USE_FLAGS */
 
 /* internal function prototypes */
 void    write_html_head(char *, FILE *);            /* head of html page   */
@@ -108,6 +111,15 @@ int     qs_ident_cmph(const void*, const void*);    /* compare by hits     */
 int     qs_ident_cmpk(const void*, const void*);    /* compare by kbytes   */
 
 const char *hr_size(unsigned long long int size);   /* human readable size */
+
+#ifdef USE_FLAGS
+char *ctry_flag(u_long idx);                        /* returns country flag*/
+#endif	/* USE_FLAGS */
+
+#ifdef USE_GEOIP
+char *geoip_cod(char *addr, int is_IP);             /* returns country code*/
+char *geoip_str(char *addr, int is_IP, int no_flag);/* returns country name*/
+#endif	/* USE_GEOIP */
 
 int     all_sites_page(u_long, u_long);             /* output site page    */
 int     all_urls_page(u_long, u_long);              /* output urls page    */
@@ -255,7 +267,7 @@ void write_html_tail(FILE *out_fp)
 #ifdef USE_GEOIP
    if (use_geoip)
       fprintf(out_fp,"(with " \
-                     "<A HREF=\"http://sysd.org/proj/log.php#glzr\">" \
+                     "<A HREF=\"http://sysd.org/stas/node/10\">" \
                      "<STRONG>Geolizer</STRONG></A> patch)\n");
 #endif	/* USE_GEOIP */
    fprintf(out_fp,"</SMALL>\n</TD>\n");
@@ -848,7 +860,6 @@ void top_sites_table(int flag)
    HNODEPTR hptr, *pointer;
 #ifdef USE_GEOIP
    int cols=use_geoip?11:10;
-   const char *result;
 #else
    int cols=10;
 #endif	/* USE_GEOIP */
@@ -940,9 +951,8 @@ void top_sites_table(int flag)
             fprintf(out_fp,"%s</FONT></TD>", hptr->string);
             if (use_geoip)
             {
-               result=GeoIP_country_name_by_name(gi, hptr->string);
                fprintf(out_fp,"\n<TD ALIGN=left NOWRAP><FONT SIZE=\"-1\">%s" \
-                              "</FONT></TD></TR>\n", GEOIP_OK(result)?result:"<I>Unknown</I>");
+                              "</FONT></TD></TR>\n", geoip_str(hptr->string, 0, 0));
             }
             else
                fprintf(out_fp,"</TR>\n");
@@ -987,9 +997,6 @@ int all_sites_page(u_long h_reg, u_long h_grp)
    char     site_fname[256], buffer[256];
    FILE     *out_fp;
    int      i=(h_grp)?1:0;
-#ifdef USE_GEOIP
-   const char *result;
-#endif	/* USE_GEOIP */
 
    /* generate file name */
    sprintf(site_fname,"site_%04d%02d.%s",cur_year,cur_month,html_ext);
@@ -1055,7 +1062,6 @@ int all_sites_page(u_long h_reg, u_long h_grp)
 #ifdef USE_GEOIP
          if (use_geoip)
          {
-            result=GeoIP_country_name_by_addr(gi, hptr->string);
             fprintf(out_fp,
             "%-8lu %6.02f%%  %8lu %6.02f%%  %16s %6.02f%%  %8lu %6.02f%%  %-20s  %s\n",
                hptr->count,
@@ -1063,7 +1069,7 @@ int all_sites_page(u_long h_reg, u_long h_grp)
                (t_file==0)?0:((float)hptr->files/t_file)*100.0,hr_size(hptr->xfer),
                (t_xfer==0)?0:((float)hptr->xfer/t_xfer)*100.0,hptr->visit,
                (t_visit==0)?0:((float)hptr->visit/t_visit)*100.0,
-               hptr->string, GEOIP_OK(result)?result:"Unknown");
+               hptr->string, geoip_str(hptr->string, 1, 1));
          }
          else
          {
@@ -2019,12 +2025,6 @@ void top_ctry_table()
 
    extern int ctry_graph;  /* include external flag */
 
-#ifdef USE_GEOIP
-   const char *result;
-   char code[3];
-   code[2]='\0';   
-#endif	/* USE_GEOIP */
-
    /* scan hash table adding up domain totals */
    for (i=0;i<MAXHASH;i++)
    {
@@ -2041,18 +2041,7 @@ void top_ctry_table()
             {
 #ifdef USE_GEOIP
                if (use_geoip)
-               {
-                  result=GeoIP_country_code_by_addr(gi, hptr->string);
-                  if (!GEOIP_OK(result))
-                     country=NULL;
-                  else
-                  {
-                     code[0]=tolower(result[0]);
-                     code[1]=tolower(result[1]);
-
-                     country=code;
-                  }
-               }
+                  country=geoip_cod(hptr->string, 1);
                else
                   country=NULL;
 #else
@@ -2161,6 +2150,24 @@ void top_ctry_table()
    for (i=0;i<ntop_ctrys;i++)
    {
       if (top_ctrys[i]->count!=0)
+#ifdef USE_FLAGS
+      fprintf(out_fp,"<TR>"                                                \
+              "<TD ALIGN=center><FONT SIZE=\"-1\"><B>%d</B></FONT></TD>\n" \
+              "<TD ALIGN=right><FONT SIZE=\"-1\"><B>%lu</B></FONT></TD>\n" \
+              "<TD ALIGN=right><FONT SIZE=\"-2\">%3.02f%%</FONT></TD>\n"   \
+              "<TD ALIGN=right><FONT SIZE=\"-1\"><B>%lu</B></FONT></TD>\n" \
+              "<TD ALIGN=right><FONT SIZE=\"-2\">%3.02f%%</FONT></TD>\n"   \
+              "<TD ALIGN=right><FONT SIZE=\"-1\"><B>%s</B></FONT></TD>\n" \
+              "<TD ALIGN=right><FONT SIZE=\"-2\">%3.02f%%</FONT></TD>\n"   \
+              "<TD ALIGN=left NOWRAP><FONT SIZE=\"-1\">%s%s</FONT></TD></TR>\n",
+              i+1,top_ctrys[i]->count,
+              (t_hit==0)?0:((float)top_ctrys[i]->count/t_hit)*100.0,
+              top_ctrys[i]->files,
+              (t_file==0)?0:((float)top_ctrys[i]->files/t_file)*100.0,
+              hr_size(top_ctrys[i]->xfer),
+              (t_xfer==0)?0:((float)top_ctrys[i]->xfer/t_xfer)*100.0,
+              ctry_flag(top_ctrys[i]->idx),top_ctrys[i]->desc);
+#else
       fprintf(out_fp,"<TR>"                                                \
               "<TD ALIGN=center><FONT SIZE=\"-1\"><B>%d</B></FONT></TD>\n" \
               "<TD ALIGN=right><FONT SIZE=\"-1\"><B>%lu</B></FONT></TD>\n" \
@@ -2177,6 +2184,7 @@ void top_ctry_table()
               hr_size(top_ctrys[i]->xfer),
               (t_xfer==0)?0:((float)top_ctrys[i]->xfer/t_xfer)*100.0,
               top_ctrys[i]->desc);
+#endif  /* USE_FLAGS */
    }
    fprintf(out_fp,"<TR><TH HEIGHT=4></TH></TR>\n");
    fprintf(out_fp,"</TABLE>\n<P>\n");
@@ -2192,9 +2200,6 @@ void dump_all_sites()
    FILE     *out_fp;
    char     filename[256];
    u_long   cnt=a_ctr;
-#ifdef USE_GEOIP
-   const char *result;
-#endif	/* USE_GEOIP */
 
    /* generate file name */
    sprintf(filename,"%s/site_%04d%02d.%s",
@@ -2229,11 +2234,10 @@ void dump_all_sites()
 #ifdef USE_GEOIP
          if (use_geoip)
          {
-            result=GeoIP_country_name_by_addr(gi, hptr->string);
             fprintf(out_fp,
             "%lu\t%lu\t%.0f\t%lu\t%s\t%s\n",
                hptr->count,hptr->files,hptr->xfer/1024,
-               hptr->visit,hptr->string,GEOIP_OK(result)?result:"Unknown");
+               hptr->visit,hptr->string,geoip_str(hptr->string, 1, 1));
          }
          else
             fprintf(out_fp,
@@ -2937,3 +2941,96 @@ const char *hr_size(unsigned long long int size)
 
    return warpbuf[wb_index++];
 }
+
+#ifdef USE_FLAGS
+/*********************************************/
+/* CTRY_FLAG - Returns country flag          */
+/*********************************************/
+char *ctry_flag(u_long idx)
+{
+   int i;
+   int ctry_fnd=0;
+
+   for (i=0;country_flags[i].desc;i++)
+   {
+      if (idx==country_flags[i].idx)
+      {
+         ctry_fnd=i;
+         break;
+      }
+   }
+
+   return country_flags[ctry_fnd].desc;
+}
+#endif	/* USE_FLAGS */
+
+#ifdef USE_GEOIP
+/*********************************************/
+/* GEOIP_COD - Returns country code          */
+/*********************************************/
+
+char *geoip_cod(char *addr, int is_IP)
+{
+   const char *result;
+   static char code[3];
+
+   code[2]='\0';   
+
+   if (is_IP)
+      result=GeoIP_country_code_by_addr(gi, addr);
+   else
+      result=GeoIP_country_code_by_name(gi, addr);
+
+   if ((result!=NULL)&&(result[0]!='-')&&(result[1]!='-'))
+   {
+      code[0]=tolower(result[0]);
+      code[1]=tolower(result[1]);
+      return code;
+   }
+   else
+      return NULL;
+}
+
+/*********************************************/
+/* GEOIP_STR - Returns country name          */
+/*********************************************/
+
+char *geoip_str(char *addr, int is_IP, int no_flag)
+{
+   int i;
+   int ctry_fnd=0;
+   u_long idx;
+   static char str[256];
+   char *code = geoip_cod(addr, is_IP);
+   
+   if (code != NULL)
+      idx = ctry_idx(code);
+   else
+      return ctry[0].desc;
+
+   for (i=0;ctry[i].desc;i++)
+   {
+      if (idx==ctry[i].idx)
+      {
+         ctry_fnd=i;
+         break;
+      }
+   }
+
+   memset(str, sizeof(str), '\0');
+
+#ifdef USE_FLAGS
+   if (!no_flag)
+   {
+      strncpy(str, ctry_flag(idx), sizeof(str) - 1);
+      strncat(str, ctry[ctry_fnd].desc, sizeof(str) - 1);
+   }
+   else
+      strncpy(str, ctry[ctry_fnd].desc, sizeof(str) - 1);
+#else
+   strncpy(str, ctry[ctry_fnd].desc, sizeof(str) - 1);
+#endif  /* USE_FLAGS */
+
+   return str;
+}
+#endif  /* USE_GEOIP */

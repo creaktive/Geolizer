@@ -1,7 +1,7 @@
 Info about compiling Webalizer on Win32 platform under MinGW
 ============================================================
 
-by Stanislaw Pusep (stanis@linuxmail.org)
+by Stanislaw Pusep (stas@sysd.org)
 
 
 Wow, since last time I compiled this thingie on MinGW things evolved a lot :)
@@ -10,7 +10,7 @@ Bash & RXVT so one could simply "./configure; make; make install" on Win32.
 That was exactly what I did to compile zlib, libpng & gd dependencies.
 libGeoIP didn't compiled that fine; I needed to patch the source and I hope
 that libGeoIP 1.3.2 and future releases will have my Win32/MinGW patch
-integrated.
+integrated (post-note: they did it ;).
 It's perfectly possible to run configure script for patched webalizer itself
 but I don't thing it's a good idea. If you really wish to do that just set
 appropriate CFLAGS & LDFLAGS. They're almost the same as those set by

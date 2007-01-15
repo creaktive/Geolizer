@@ -269,22 +269,31 @@ int main(int argc, char *argv[])
                          "jul", "aug", "sep",
                          "oct", "nov", "dec"};
 
+#ifdef WIN32
+   char *p;
+   int len;
+
+   memset(tmp_buf, '\0', sizeof(tmp_buf));
+
+   len = GetModuleFileName(GetModuleHandle(NULL), tmp_buf, sizeof(tmp_buf) - 1);
+   for (p = tmp_buf + len; (p > tmp_buf) && (*p != '\\'); p--);
+   *p = '\0';
+   strncat(tmp_buf, "\\webalizer.conf", sizeof(tmp_buf) - 1);
+#else
+   sprintf(tmp_buf,"%s/webalizer.conf",ETCDIR);
+#endif	/* WIN32 */
+
    /* initalize epoch */
    epoch=jdate(1,1,1970);                /* used for timestamp adj.     */
 
    /* add default index. alias */
    add_nlist("index.",&index_alias);
 
-#ifndef WIN32
-   sprintf(tmp_buf,"%s/webalizer.conf",ETCDIR);
-#endif	/* WIN32 */
    /* check for default config file */
    if (!access("webalizer.conf",F_OK))
       get_config("webalizer.conf");
-#ifndef WIN32
    else if (!access(tmp_buf,F_OK))
       get_config(tmp_buf);
-#endif	/* WIN32 */
 
    /* get command line options */
    opterr = 0;     /* disable parser errors */
@@ -497,7 +506,7 @@ int main(int argc, char *argv[])
       else
       {
          strncpy(gi_db_info, cp1, cp2-cp1);
-	 strcat(gi_db_info, "<A HREF=\"http://maxmind.com/geoip/\">MaxMind</A>");
+	 strcat(gi_db_info, "<A HREF=\"http://www.maxmind.com/app/ip-location\">MaxMind</A>");
 	 strcat(gi_db_info, cp2+7);
       }
       free(cp1);
